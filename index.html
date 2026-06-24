@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FF6F00">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Hoppy Go Lucky - 啤酒酿造小游戏</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- 封面页 -->
+  <div id="page-cover" class="page active">
+    <div class="cover-bg">
+      <div class="bubbles"></div>
+    </div>
+    <div class="cover-content">
+      <div class="logo">
+        <div class="logo-icon">🍀🍺</div>
+        <h1>Hoppy Go Lucky</h1>
+        <p class="subtitle">酒花与幸运 · 酿造你的快乐</p>
+      </div>
+      <p class="tagline">从麦芽到佳酿，每一步都是小冒险！</p>
+      <div class="mode-select">
+        <h3>选择游戏模式</h3>
+        <button class="btn-mode" onclick="game.selectMode('apprentice')">
+          <span class="mode-icon">🎓</span>
+          <div class="mode-info">
+            <div class="mode-name">学徒模式</div>
+            <div class="mode-desc">从简单风格开始，逐步解锁复杂配方</div>
+          </div>
+        </button>
+        <button class="btn-mode" onclick="game.selectMode('exam')">
+          <span class="mode-icon">📝</span>
+          <div class="mode-info">
+            <div class="mode-name">BJCP 考试模式</div>
+            <div class="mode-desc">盲品识别风格，测试你的BJCP知识</div>
+          </div>
+        </button>
+        <button class="btn-mode" onclick="game.selectMode('bar')">
+          <span class="mode-icon">🍻</span>
+          <div class="mode-info">
+            <div class="mode-name">酒吧推荐</div>
+            <div class="mode-desc">根据客人喜好，推荐最合适的啤酒风格</div>
+          </div>
+        </button>
+      </div>
+      <button class="btn-secondary" onclick="game.toPage('gallery')">
+        <span>📷</span> 我的酒窖
+      </button>
+      <button class="btn-home-muted" id="btn-install" onclick="game.installPWA()" style="display:none;">
+        <span>📲</span> 添加到桌面
+      </button>
+      <p class="credit">基于 BJCP 2021 啤酒风格指南 · 酿造快乐，分享幸运 🍀</p>
+    </div>
+  </div>
+
+  <!-- 学徒模式页 -->
+  <div id="page-apprentice" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="game.toPage('cover')">←</button>
+      <h2>🎓 学徒模式</h2>
+    </div>
+    <div class="page-body">
+      <div class="progress-bar" id="apprentice-progress">
+        <div class="progress-fill" id="apprentice-progress-fill"></div>
+      </div>
+      <p class="progress-text" id="apprentice-progress-text">解锁进度: 0/38</p>
+      <p class="hint">完成酿造获得70分以上即可解锁下一风格</p>
+      <div class="unlock-grid" id="unlock-grid">
+        <!-- 由JS动态生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- BJCP考试模式页 -->
+  <div id="page-exam" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="game.toPage('cover')">←</button>
+      <h2>📝 BJCP 考试</h2>
+    </div>
+    <div class="page-body">
+      <div class="exam-intro" id="exam-intro">
+        <div class="exam-icon">🍺</div>
+        <h3>盲品识别挑战</h3>
+        <p>系统会给出一份啤酒的参数和描述，你需要从选项中选出正确的BJCP风格。</p>
+        <p>连续答对提升等级，答错会降级！</p>
+        <div class="exam-stats" id="exam-stats">
+          <div class="stat-box">
+            <div class="stat-value" id="exam-level">1</div>
+            <div class="stat-label">当前等级</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="exam-streak">0</div>
+            <div class="stat-label">连胜</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="exam-best">0</div>
+            <div class="stat-label">最高连胜</div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="game.startExam()">
+          <span>🎯</span> 开始挑战
+        </button>
+      </div>
+      <div class="exam-question" id="exam-question" style="display:none;">
+        <div class="question-number" id="question-number">第 1 题</div>
+        <div class="beer-clue" id="beer-clue">
+          <div class="clue-params" id="clue-params"></div>
+          <div class="clue-desc" id="clue-desc"></div>
+        </div>
+        <div class="answer-options" id="answer-options"></div>
+        <div class="exam-feedback" id="exam-feedback"></div>
+        <button class="btn-primary" id="btn-next-question" style="display:none;" onclick="game.nextExamQuestion()">
+          下一题 →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 酒吧推荐模式页 -->
+  <div id="page-bar" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="game.toPage('cover')">←</button>
+      <h2>🍻 酒吧推荐</h2>
+    </div>
+    <div class="page-body">
+      <div class="bar-intro" id="bar-intro">
+        <div class="bar-icon">🍻</div>
+        <h3>欢迎来到精酿酒吧！</h3>
+        <p>客人会告诉你他们的喜好和限制，你需要从酒单中推荐最合适的BJCP风格。</p>
+        <p>匹配度越高，小费越多！</p>
+        <div class="bar-stats" id="bar-stats">
+          <div class="stat-box">
+            <div class="stat-value" id="bar-level">1</div>
+            <div class="stat-label">调酒师等级</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="bar-streak">0</div>
+            <div class="stat-label">连续好评</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="bar-best">0</div>
+            <div class="stat-label">最高连胜</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="bar-tips">0</div>
+            <div class="stat-label">小费收入(元)</div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="game.startBarMode()">
+          <span>🍺</span> 开始营业
+        </button>
+      </div>
+      <div class="bar-question" id="bar-question" style="display:none;">
+        <div class="customer-card" id="customer-card">
+          <div class="customer-avatar" id="customer-avatar">👤</div>
+          <div class="customer-dialog">
+            <div class="customer-name" id="customer-name">客人</div>
+            <div class="customer-request" id="customer-request"></div>
+            <div class="customer-preferences" id="customer-preferences"></div>
+          </div>
+        </div>
+        <div class="menu-section">
+          <h4>📋 酒单（选择一款推荐）</h4>
+          <div class="menu-list" id="menu-list"></div>
+        </div>
+        <div class="bar-feedback" id="bar-feedback"></div>
+        <button class="btn-primary" id="btn-next-customer" style="display:none;" onclick="game.nextBarCustomer()">
+          下一位客人 →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 风格选择页 -->
+  <div id="page-style-select" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="game.toPage('cover')">←</button>
+      <h2>选择啤酒流派</h2>
+    </div>
+    <div class="page-body">
+      <p class="hint">你想酿造哪个国家的经典风格？</p>
+      <div class="style-grid" id="style-grid">
+        <!-- 由JS动态生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 具体风格选择页 -->
+  <div id="page-style-detail" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="game.toPage('style-select')">←</button>
+      <h2 id="detail-title">选择风格</h2>
+    </div>
+    <div class="page-body">
+      <div class="style-list" id="style-list">
+        <!-- 由JS动态生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 酿酒师选择页 -->
+  <div id="page-brewer-select" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="game.toPage('style-detail')">←</button>
+      <h2>选择你的酿酒师</h2>
+    </div>
+    <div class="page-body">
+      <p class="hint">酿酒师将全程指导你的酿造过程</p>
+      <div class="brewer-grid" id="brewer-grid">
+        <!-- 由JS动态生成 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 酿造流程页 -->
+  <div id="page-brewing" class="page">
+    <div class="brewing-header">
+      <div class="step-indicator" id="step-indicator">
+        <div class="step active" data-step="0">糖化</div>
+        <div class="step" data-step="1">煮沸</div>
+        <div class="step" data-step="2">发酵</div>
+        <div class="step" data-step="3">增味</div>
+        <div class="step" data-step="4">成品</div>
+      </div>
+    </div>
+    
+    <div class="brewing-body" id="brewing-body">
+      <!-- 糖化步骤 -->
+      <div class="brew-step active" id="step-mash">
+        <h3>🌾 糖化 (Mashing)</h3>
+        <p class="step-desc">将麦芽中的淀粉转化为可发酵糖</p>
+        
+        <div class="panel">
+          <h4>选择麦芽</h4>
+          <div class="malt-selector" id="malt-selector"></div>
+          <div class="selected-items" id="selected-malts"></div>
+        </div>
+        
+        <div class="panel">
+          <h4>糖化温度（°C）</h4>
+          <div class="slider-group">
+            <input type="range" id="mash-temp" min="55" max="75" value="65" step="0.5">
+            <div class="slider-value">
+              <span id="mash-temp-val">65</span>
+              <span class="ideal" id="mash-temp-ideal"></span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel">
+          <h4>糖化时间（分钟）</h4>
+          <div class="slider-group">
+            <input type="range" id="mash-time" min="30" max="120" value="60" step="5">
+            <div class="slider-value">
+              <span id="mash-time-val">60</span>
+              <span class="ideal" id="mash-time-ideal"></span>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn-step" onclick="game.nextStep()">
+          <span class="step-icon">🔥</span>
+          <span class="step-text">下一步：煮沸</span>
+          <span class="step-arrow">→</span>
+        </button>
+        <button class="btn-home-muted" onclick="game.toPage('cover')">🏠 返回首页</button>
+      </div>
+      
+      <!-- 煮沸步骤 -->
+      <div class="brew-step" id="step-boil">
+        <h3>🔥 煮沸 (Boiling)</h3>
+        <p class="step-desc">杀菌、浓缩、提取酒花苦味和香气</p>
+        
+        <div class="panel">
+          <h4>选择酒花</h4>
+          <div class="hop-selector" id="hop-selector"></div>
+          <div class="selected-items" id="selected-hops"></div>
+        </div>
+        
+        <div class="panel">
+          <h4>煮沸时间（分钟）</h4>
+          <div class="slider-group">
+            <input type="range" id="boil-time" min="30" max="120" value="60" step="5">
+            <div class="slider-value">
+              <span id="boil-time-val">60</span>
+              <span class="ideal" id="boil-time-ideal"></span>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn-step" onclick="game.nextStep()">
+          <span class="step-icon">🧪</span>
+          <span class="step-text">下一步：发酵</span>
+          <span class="step-arrow">→</span>
+        </button>
+        <button class="btn-home-muted" onclick="game.toPage('cover')">🏠 返回首页</button>
+      </div>
+      
+      <!-- 发酵步骤 -->
+      <div class="brew-step" id="step-ferment">
+        <h3>🧪 发酵 (Fermentation)</h3>
+        <p class="step-desc">酵母将糖转化为酒精和CO₂</p>
+        
+        <div class="panel">
+          <h4>选择酵母</h4>
+          <div class="yeast-selector" id="yeast-selector"></div>
+        </div>
+        
+        <div class="panel">
+          <h4>发酵温度（°C）</h4>
+          <div class="slider-group">
+            <input type="range" id="ferment-temp" min="4" max="30" value="18" step="0.5">
+            <div class="slider-value">
+              <span id="ferment-temp-val">18</span>
+              <span class="ideal" id="ferment-temp-ideal"></span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel">
+          <h4>发酵时间（天）</h4>
+          <div class="slider-group">
+            <input type="range" id="ferment-time" min="3" max="90" value="14" step="1">
+            <div class="slider-value">
+              <span id="ferment-time-val">14</span>
+              <span class="ideal" id="ferment-time-ideal"></span>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn-step" onclick="game.nextStep()">
+          <span class="step-icon">✨</span>
+          <span class="step-text">下一步：增味</span>
+          <span class="step-arrow">→</span>
+        </button>
+        <button class="btn-home-muted" onclick="game.toPage('cover')">🏠 返回首页</button>
+      </div>
+      
+      <!-- 增味步骤 -->
+      <div class="brew-step" id="step-flavor">
+        <h3>✨ 增味 (Flavoring)</h3>
+        <p class="step-desc">可选：添加水果、香料或进行二次发酵</p>
+        
+        <div class="panel">
+          <h4>可选添加物</h4>
+          <div class="flavor-selector" id="flavor-selector"></div>
+          <div class="selected-items" id="selected-flavors"></div>
+        </div>
+        
+        <div class="panel">
+          <h4>二次发酵/陈酿时间（天）</h4>
+          <div class="slider-group">
+            <input type="range" id="condition-time" min="0" max="90" value="7" step="1">
+            <div class="slider-value">
+              <span id="condition-time-val">7</span>
+              <span class="ideal" id="condition-time-ideal"></span>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn-finish" onclick="game.finishBrewing()">
+          <span class="finish-icon">🍺</span>
+          <span>完成酿造！</span>
+        </button>
+        <button class="btn-home-muted" onclick="game.toPage('cover')">🏠 返回首页</button>
+      </div>
+    </div>
+    
+    <!-- 酿酒师对话气泡 -->
+    <div class="brewer-bubble" id="brewer-bubble">
+      <div class="bubble-avatar" id="bubble-avatar">🍺</div>
+      <div class="bubble-text" id="bubble-text"></div>
+      <button class="bubble-close" onclick="game.hideBubble()">×</button>
+    </div>
+  </div>
+
+  <!-- 成品评分页 -->
+  <div id="page-result" class="page">
+    <div class="page-header">
+      <h2>🎉 酿造完成！</h2>
+    </div>
+    <div class="page-body">
+      <div class="result-card">
+        <div class="beer-visual" id="beer-visual">
+          <div class="beer-glass">
+            <div class="beer-liquid" id="beer-liquid"></div>
+            <div class="beer-head"></div>
+          </div>
+        </div>
+        
+        <div class="score-section">
+          <div class="big-score" id="big-score">--</div>
+          <div class="score-badge" id="score-badge">评级</div>
+        </div>
+        
+        <div class="params-comparison">
+          <h4>参数对比</h4>
+          <div class="param-row">
+            <span class="param-name">OG（初始比重）</span>
+            <div class="param-bar">
+              <div class="param-target" id="og-target"></div>
+              <div class="param-actual" id="og-actual"></div>
+            </div>
+            <span class="param-val" id="og-val"></span>
+          </div>
+          <div class="param-row">
+            <span class="param-name">FG（终点比重）</span>
+            <div class="param-bar">
+              <div class="param-target" id="fg-target"></div>
+              <div class="param-actual" id="fg-actual"></div>
+            </div>
+            <span class="param-val" id="fg-val"></span>
+          </div>
+          <div class="param-row">
+            <span class="param-name">IBU（苦度）</span>
+            <div class="param-bar">
+              <div class="param-target" id="ibu-target"></div>
+              <div class="param-actual" id="ibu-actual"></div>
+            </div>
+            <span class="param-val" id="ibu-val"></span>
+          </div>
+          <div class="param-row">
+            <span class="param-name">SRM（色度）</span>
+            <div class="param-bar">
+              <div class="param-target" id="srm-target"></div>
+              <div class="param-actual" id="srm-actual"></div>
+            </div>
+            <span class="param-val" id="srm-val"></span>
+          </div>
+          <div class="param-row">
+            <span class="param-name">ABV（酒精度）</span>
+            <div class="param-bar">
+              <div class="param-target" id="abv-target"></div>
+              <div class="param-actual" id="abv-actual"></div>
+            </div>
+            <span class="param-val" id="abv-val"></span>
+          </div>
+        </div>
+        
+        <div class="brewer-comment" id="brewer-comment"></div>
+        
+        <div class="naming-section">
+          <h4>给你的啤酒命名</h4>
+          <input type="text" id="beer-name" placeholder="例如：夏日微风 IPA" maxlength="20">
+        </div>
+        
+        <button class="btn-primary" onclick="game.generateShareImage()">
+          <span>📸</span> 生成分享图
+        </button>
+        <button class="btn-secondary" onclick="game.toPage('cover')">
+          <span>🏠</span> 返回首页
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分享图预览页 -->
+  <div id="page-share" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="game.toPage('result')">←</button>
+      <h2>分享你的佳酿</h2>
+    </div>
+    <div class="page-body share-body">
+      <canvas id="share-canvas" width="1080" height="1920"></canvas>
+      <p class="hint">长按图片保存到相册</p>
+      <button class="btn-primary" onclick="game.downloadShareImage()">
+        <span>💾</span> 下载图片
+      </button>
+      <button class="btn-secondary" onclick="game.toPage('cover')">
+        <span>🏠</span> 返回首页
+      </button>
+    </div>
+  </div>
+
+  <!-- 酒窖画廊页 -->
+  <div id="page-gallery" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="game.toPage('cover')">←</button>
+      <h2>我的酒窖</h2>
+    </div>
+    <div class="page-body">
+      <div class="gallery-actions" id="gallery-actions" style="display:none;">
+        <button class="btn-action" onclick="game.toggleGallerySelect()">
+          <span id="select-mode-text">✓ 多选</span>
+        </button>
+        <button class="btn-action btn-action-danger" onclick="game.clearGallery()">
+          <span>🗑 清空</span>
+        </button>
+      </div>
+      <div class="gallery-grid" id="gallery-grid">
+        <p class="empty-hint">还没有酿造记录，快去酿一杯吧！</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/data-extended.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/qrcode.js"></script>
+  <script src="js/brew-logic.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

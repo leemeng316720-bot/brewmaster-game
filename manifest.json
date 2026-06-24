@@ -1,0 +1,26 @@
+{
+  "name": "Hoppy Go Lucky - 啤酒酿造小游戏",
+  "short_name": "Hoppy Go Lucky",
+  "description": "酒花与幸运 · 酿造你的快乐 - 基于BJCP 2021的啤酒酿造模拟游戏",
+  "start_url": "/brewmaster-game/",
+  "display": "standalone",
+  "background_color": "#1A1A1A",
+  "theme_color": "#FF6F00",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23FF6F00' width='192' height='192' rx='24'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle'%3E🍺%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%23FF6F00' width='512' height='512' rx='64'/%3E%3Ctext x='256' y='320' font-size='280' text-anchor='middle'%3E🍺%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "lang": "zh-CN"
+}
