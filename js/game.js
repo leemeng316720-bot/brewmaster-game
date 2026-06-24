@@ -660,6 +660,53 @@ const game = {
     if (style.optional?.includes('海盐')) tags.add('咸味');
     if (style.optional?.includes('咖啡')) tags.add('咖啡');
     
+    // 描述关键词标签（更精细区分相似风格）
+    const desc = style.description || '';
+    if (desc.includes('果汁')) tags.add('果汁感');
+    if (desc.includes('柔和')) tags.add('柔和');
+    if (desc.includes('苦味清晰') || desc.includes('苦味')) tags.add('苦味清晰');
+    if (desc.includes('酒花香气奔放')) tags.add('奔放酒花');
+    if (desc.includes('咖啡')) tags.add('咖啡风味');
+    if (desc.includes('巧克力')) tags.add('巧克力风味');
+    if (desc.includes('焦糖')) tags.add('焦糖风味');
+    if (desc.includes('面包')) tags.add('面包风味');
+    if (desc.includes('坚果')) tags.add('坚果风味');
+    if (desc.includes('蜂蜜')) tags.add('蜂蜜风味');
+    if (desc.includes('柠檬水')) tags.add('柠檬水');
+    if (desc.includes('柑橘')) tags.add('柑橘');
+    if (desc.includes('热带')) tags.add('热带水果');
+    if (desc.includes('农舍')) tags.add('农舍');
+    if (desc.includes('皮革')) tags.add('皮革');
+    if (desc.includes('香料')) tags.add('香料');
+    if (desc.includes('烤面包')) tags.add('烤面包');
+    if (desc.includes('烘烤')) tags.add('烘烤');
+    
+    // 更精细的ABV标签
+    if (style.abv?.min >= 8) tags.add('高度烈性');
+    if (style.abv?.max <= 4.5) tags.add('社交型');
+    if (style.abv?.min >= 5 && style.abv?.max <= 6.5) tags.add('标准酒精');
+    
+    // 更精细的IBU标签
+    if (avgIBU >= 20 && avgIBU <= 35) tags.add('温和苦度');
+    if (avgIBU >= 50) tags.add('强烈苦味');
+    if (avgIBU <= 15) tags.add('几乎不苦');
+    
+    // 原料特殊标签（只检查default麦芽）
+    if (style.malts?.some(m => m.name.includes('燕麦') && m.default)) tags.add('燕麦');
+    if (style.malts?.some(m => m.name.includes('糖') && m.default)) tags.add('加糖');
+    if (style.malts?.some(m => m.name.includes('黑麦') && m.default)) tags.add('黑麦');
+    if (style.malts?.some(m => m.name.includes('棕色') && m.default)) tags.add('棕色麦芽');
+    if (style.malts?.some(m => m.name.includes('维也纳') && m.default)) tags.add('维也纳麦芽');
+    
+    // 酒花特殊标签
+    if (hasUSNewWorld && hopAroma >= 3 && style.ibu?.min >= 40) tags.add('新世界酒花主导');
+    if (hasUSNewWorld && hopAroma >= 2 && style.ibu?.max <= 50) tags.add('新世界酒花柔和');
+    if (hasNoble && hopAroma >= 2 && style.ibu?.max <= 40) tags.add('贵族酒花优雅');
+    
+    // 浑浊度（基于描述和原料）
+    if (desc.includes('浑浊') || (hasWheatMalt && hasUSNewWorld && hopAroma >= 2)) tags.add('浑浊');
+    if (desc.includes('透亮') || desc.includes('清澈') || desc.includes('金黄')) tags.add('透亮');
+    
     return tags;
   },
   
@@ -679,33 +726,58 @@ const game = {
       { label: '喜欢黑啤', tags: ['黑啤', '颜色很深'], antiTags: ['颜色很浅', '颜色浅', '浅色'], weight: 1.5 },
       
       // 苦度偏好
-      { label: '不要太苦', tags: ['不苦', '微苦', '低苦味'], antiTags: ['较苦', '很苦', '高苦味'], weight: 1.2 },
-      { label: '喜欢苦味', tags: ['较苦', '很苦', '高苦味'], antiTags: ['不苦', '微苦', '低苦味'], weight: 1.2 },
-      { label: '苦度适中', tags: ['微苦', '中等苦度'], antiTags: ['很苦', '不苦'], weight: 1.0 },
+      { label: '不要太苦', tags: ['不苦', '微苦', '低苦味', '几乎不苦'], antiTags: ['较苦', '很苦', '高苦味', '强烈苦味'], weight: 1.2 },
+      { label: '喜欢苦味', tags: ['较苦', '很苦', '高苦味', '强烈苦味'], antiTags: ['不苦', '微苦', '低苦味', '几乎不苦'], weight: 1.2 },
+      { label: '苦度适中', tags: ['微苦', '中等苦度', '温和苦度'], antiTags: ['很苦', '不苦', '强烈苦味', '几乎不苦'], weight: 1.0 },
       
       // 酒精度偏好
-      { label: '酒精度低一点', tags: ['低酒精', '低度'], antiTags: ['较高酒精', '高酒精', '烈性'], weight: 1.0 },
-      { label: '想要烈一点的', tags: ['较高酒精', '高酒精', '烈性'], antiTags: ['低酒精', '低度'], weight: 1.2 },
-      { label: '适中就好', tags: ['中等酒精', '低度'], antiTags: ['高酒精', '烈性'], weight: 1.0 },
+      { label: '酒精度低一点', tags: ['低酒精', '低度', '社交型'], antiTags: ['较高酒精', '高酒精', '烈性', '高度烈性'], weight: 1.0 },
+      { label: '想要烈一点的', tags: ['较高酒精', '高酒精', '烈性', '高度烈性'], antiTags: ['低酒精', '低度', '社交型'], weight: 1.2 },
+      { label: '适中就好', tags: ['中等酒精', '低度', '标准酒精'], antiTags: ['高酒精', '烈性', '高度烈性'], weight: 1.0 },
       
-      // 风味偏好
+      // 风味偏好 - 酒花
       { label: '喜欢酒花香气', tags: ['酒花香气', '酒花主导', '优雅酒花'], antiTags: ['低酒花'], weight: 1.5 },
+      { label: '喜欢酒花主导', tags: ['酒花主导', '新世界酒花主导', '强烈苦味'], antiTags: ['低酒花', '优雅酒花'], weight: 1.5 },
+      { label: '喜欢柔和酒花', tags: ['优雅酒花', '新世界酒花柔和', '贵族酒花优雅'], antiTags: ['酒花主导', '强烈苦味'], weight: 1.2 },
+      
+      // 风味偏好 - 麦芽
       { label: '喜欢麦芽甜味', tags: ['麦芽甜味', '慕尼黑麦芽'], antiTags: ['酒花主导'], weight: 1.2 },
-      { label: '喜欢清爽口感', tags: ['干爽', '清爽', '轻盈'], antiTags: ['浓郁', '微甜'], weight: 1.0 },
-      { label: '喜欢浓郁口感', tags: ['浓郁', '微甜', '高酒精'], antiTags: ['干爽', '轻盈', '低酒精'], weight: 1.2 },
-      { label: '喜欢果香', tags: ['果香', '香蕉丁香', '辛香'], antiTags: [], weight: 1.0 },
+      { label: '喜欢焦糖风味', tags: ['焦糖风味', '慕尼黑麦芽'], antiTags: ['酒花主导'], weight: 1.2 },
+      { label: '喜欢面包风味', tags: ['面包风味', '棕色麦芽'], antiTags: ['酒花主导'], weight: 1.2 },
+      { label: '喜欢烘烤风味', tags: ['烘烤风味', '黑啤', '烘烤'], antiTags: ['颜色很浅', '颜色浅', '清爽'], weight: 1.2 },
+      { label: '喜欢咖啡风味', tags: ['咖啡风味', '咖啡'], antiTags: ['清爽'], weight: 1.2 },
+      { label: '喜欢巧克力风味', tags: ['巧克力风味'], antiTags: ['清爽'], weight: 1.2 },
+      
+      // 口感偏好
+      { label: '喜欢清爽口感', tags: ['干爽', '清爽', '轻盈'], antiTags: ['浓郁', '微甜', '丝滑'], weight: 1.0 },
+      { label: '喜欢浓郁口感', tags: ['浓郁', '微甜', '高酒精', '丝滑'], antiTags: ['干爽', '轻盈', '低酒精'], weight: 1.2 },
+      { label: '喜欢丝滑口感', tags: ['燕麦口感', '丝滑'], antiTags: [], weight: 1.0 },
+      { label: '喜欢果汁感', tags: ['果汁感', '浑浊'], antiTags: ['透亮', '清晰苦味'], weight: 1.5 },
+      { label: '喜欢干爽', tags: ['干爽', '低酒精'], antiTags: ['微甜', '浓郁'], weight: 1.0 },
+      
+      // 酵母/风味特征
+      { label: '喜欢果香', tags: ['果香', '香蕉丁香', '辛香', '柑橘', '热带水果'], antiTags: [], weight: 1.0 },
+      { label: '喜欢辛香', tags: ['辛香', '香料'], antiTags: ['果香'], weight: 1.0 },
       { label: '喜欢酸味', tags: ['酸味', '乳酸', '野菌'], antiTags: [], weight: 1.5 },
+      { label: '喜欢野菌', tags: ['野菌', '农舍', '皮革'], antiTags: [], weight: 1.5 },
+      { label: '喜欢干净', tags: ['干净'], antiTags: ['野菌', '农舍', '皮革', '酸味'], weight: 1.0 },
+      
+      // 类型偏好
       { label: '小麦啤酒', tags: ['小麦啤酒'], antiTags: [], weight: 1.5 },
       { label: '拉格类型', tags: ['拉格'], antiTags: ['艾尔'], weight: 1.2 },
       { label: '艾尔类型', tags: ['艾尔'], antiTags: ['拉格'], weight: 1.0 },
-      { label: '喜欢烘烤风味', tags: ['烘烤风味', '黑啤'], antiTags: ['颜色很浅', '颜色浅'], weight: 1.2 },
-      { label: '喜欢丝滑口感', tags: ['燕麦口感', '丝滑'], antiTags: [], weight: 1.0 },
+      { label: '燕麦啤酒', tags: ['燕麦'], antiTags: [], weight: 1.2 },
+      
+      // 外观偏好
+      { label: '喜欢浑浊的', tags: ['浑浊', '果汁感', '小麦啤酒'], antiTags: ['透亮'], weight: 1.2 },
+      { label: '喜欢透亮的', tags: ['透亮', '干净'], antiTags: ['浑浊'], weight: 1.2 },
       
       // 场景偏好
       { label: '适合夏天喝', tags: ['适合夏天', '干爽', '清爽'], antiTags: ['适合冬天', '浓郁'], weight: 1.2 },
       { label: '适合冬天喝', tags: ['适合冬天', '浓郁', '高酒精'], antiTags: ['适合夏天', '干爽'], weight: 1.0 },
       { label: '适合配餐', tags: ['适合配餐'], antiTags: ['高酒精', '烈性'], weight: 1.0 },
       { label: '适合独饮', tags: ['适合独饮', '浓郁', '高酒精'], antiTags: ['低酒精'], weight: 1.0 },
+      { label: '社交聚会', tags: ['社交型', '低度'], antiTags: ['高度烈性'], weight: 1.0 },
     ];
     
     // 为每个偏好计算池中风格的匹配情况
@@ -731,16 +803,16 @@ const game = {
     // 如果有效偏好太少，降低门槛到1个
     const usablePrefs = validPrefs.length >= 3 ? validPrefs : prefStats.filter(s => s.matchCount >= 1);
     
-    // 随机选择1-3个偏好（确保不冲突）
+    // 固定3个偏好（确保足够的区分度）
+    const targetPrefs = 3;
     let selected = [];
     let selectedTags = new Set();
     let selectedAntiTags = new Set();
-    const maxPrefs = 1 + Math.floor(Math.random() * 3); // 1-3个
     
     const shuffled = usablePrefs.sort(() => Math.random() - 0.5);
     
     for (const stat of shuffled) {
-      if (selected.length >= maxPrefs) break;
+      if (selected.length >= targetPrefs) break;
       
       const pref = stat.pref;
       
@@ -757,9 +829,71 @@ const game = {
       }
     }
     
-    // 如果选得太少（<1），放宽条件重新选
-    if (selected.length === 0 && usablePrefs.length > 0) {
-      selected.push(usablePrefs[0]);
+    // 如果选得太少（<2），放宽冲突条件重新选
+    if (selected.length < 2) {
+      for (const stat of shuffled) {
+        if (selected.length >= 2) break;
+        if (!selected.find(s => s.pref.label === stat.pref.label)) {
+          selected.push(stat);
+        }
+      }
+    }
+    
+    // 计算当前偏好组合下各风格的匹配度，检查是否有多个100%匹配
+    const currentChecks = selected.map(s => (style) => {
+      const tags = this.getStyleTags(style);
+      const hasMatch = s.pref.tags.some(tag => tags.has(tag));
+      const hasAnti = s.pref.antiTags.some(tag => tags.has(tag));
+      return hasMatch && !hasAnti;
+    });
+    const currentWeights = selected.map(s => s.pref.weight || 1.0);
+    
+    const fullMatches = poolWithTags.filter(item => {
+      let score = 0;
+      let totalWeight = 0;
+      for (let i = 0; i < currentChecks.length; i++) {
+        const weight = currentWeights[i];
+        totalWeight += weight;
+        if (currentChecks[i](item.style)) {
+          score += weight * 100;
+        } else {
+          score -= weight * 40;
+        }
+      }
+      if (totalWeight > 0) score = score / totalWeight;
+      return score >= 95; // 接近100%匹配
+    });
+    
+    // 如果有多个风格都接近100%匹配，尝试添加一个区分偏好
+    if (fullMatches.length > 1 && selected.length < 5) {
+      // 找出能区分这些风格的偏好
+      const distinguishingPrefs = usablePrefs.filter(stat => {
+        if (selected.find(s => s.pref.label === stat.pref.label)) return false;
+        
+        // 检查这个偏好是否能区分 fullMatches 中的风格
+        const matchResults = fullMatches.map(item => {
+          const tags = this.getStyleTags(item.style);
+          const hasMatch = stat.pref.tags.some(tag => tags.has(tag));
+          const hasAnti = stat.pref.antiTags.some(tag => tags.has(tag));
+          return hasMatch && !hasAnti;
+        });
+        
+        // 能区分 = 有的匹配有的不匹配
+        const hasTrue = matchResults.some(r => r);
+        const hasFalse = matchResults.some(r => !r);
+        return hasTrue && hasFalse;
+      });
+      
+      if (distinguishingPrefs.length > 0) {
+        // 随机选一个区分偏好
+        const dp = distinguishingPrefs[Math.floor(Math.random() * distinguishingPrefs.length)];
+        // 检查冲突
+        const hasConflict = dp.pref.tags.some(tag => selectedAntiTags.has(tag)) ||
+                           dp.pref.antiTags.some(tag => selectedTags.has(tag));
+        if (!hasConflict) {
+          selected.push(dp);
+        }
+      }
     }
     
     const mood = ['happy', 'tired', 'celebrating', 'curious', 'neutral'][Math.floor(Math.random() * 5)];
@@ -861,6 +995,24 @@ const game = {
           <div class="streak">连续好评 ${this.state.bar.streak} 次！</div>
         `;
       }
+    } else if (matchScore >= 95) {
+      // 虽然不是算法排序的第一名，但匹配度也是100%（并列完美）
+      Sound.playSuccess();
+      this.state.bar.streak++;
+      if (this.state.bar.streak > this.state.bar.bestStreak) {
+        this.state.bar.bestStreak = this.state.bar.streak;
+      }
+      const tip = this.calculateTip(matchScore, true);
+      this.state.bar.totalTips += tip;
+      feedback.className = 'bar-feedback excellent';
+      feedback.innerHTML = `
+        <div class="feedback-title">🎉 完美推荐！</div>
+        <div class="feedback-text">这也是客人的心头好！100%满足他的需求！</div>
+        <div class="match-score">匹配度: ${matchScore}%</div>
+        <div class="tip-amount">💰 小费 +${tip}元</div>
+        <div class="tip-total">累计收入: ${this.state.bar.totalTips}元</div>
+        <div class="streak">连续好评 ${this.state.bar.streak} 次！</div>
+      `;
     } else if (isGood) {
       Sound.playBubble();
       this.state.bar.streak++;
