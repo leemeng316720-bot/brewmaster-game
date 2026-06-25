@@ -16,6 +16,7 @@ const BJCP_STYLES = {
     styles: [
       {
         id: "21A",
+        flavorTags: ["清亮", "酒花香", "干爽", "中高", "柑橘"],
         name: "美式 IPA",
         nameEn: "American IPA",
         description: "酒花香气奔放，苦味清晰，麦芽支撑适中。美式精酿的标志性风格。",
@@ -56,6 +57,7 @@ const BJCP_STYLES = {
       },
       {
         id: "21C",
+        flavorTags: ["浑浊", "柔和", "果汁感", "中高", "热带水果"],
         name: "浑浊 IPA",
         nameEn: "Hazy IPA",
         description: "果汁感爆棚，酒体丝滑，苦度柔和，外观如橙汁般浑浊。",
@@ -95,6 +97,7 @@ const BJCP_STYLES = {
       },
       {
         id: "20C",
+        flavorTags: ["黑色", "强烈苦味", "浓郁", "高度", "咖啡"],
         name: "帝国世涛",
         nameEn: "Imperial Stout",
         description: "深黑如夜，酒体厚重，咖啡巧克力风味浓郁，酒精温暖。",
@@ -150,6 +153,7 @@ const BJCP_STYLES = {
     styles: [
       {
         id: "5D",
+        flavorTags: ["清亮", "优雅酒花", "干爽", "低中", "面包"],
         name: "德式皮尔森",
         nameEn: "German Pils",
         description: "金黄透亮，麦芽干净，酒花优雅，收口干脆。德国酿造工艺的典范。",
@@ -186,6 +190,7 @@ const BJCP_STYLES = {
       },
       {
         id: "10A",
+        flavorTags: ["浑浊", "低酒花", "丝滑", "低中", "香蕉丁香"],
         name: "德式小麦啤酒",
         nameEn: "Weissbier",
         description: "浑浊金黄，香蕉丁香香气，泡沫丰富，口感丝滑。巴伐利亚的骄傲。",
@@ -221,6 +226,7 @@ const BJCP_STYLES = {
       },
       {
         id: "4C",
+        flavorTags: ["金黄", "优雅酒花", "浓郁", "中高", "焦糖"],
         name: "淡色博克",
         nameEn: "Helles Bock",
         description: "金黄色，麦芽浓郁，酒体饱满，酒精温暖但不刺激。修道院修士的斋戒酒。",
@@ -272,6 +278,7 @@ const BJCP_STYLES = {
     styles: [
       {
         id: "24A",
+        flavorTags: ["浑浊", "低酒花", "清爽", "低中", "香料"],
         name: "比利时小麦",
         nameEn: "Witbier",
         description: "浑浊苍白，香菜橙皮香气，清爽微酸，夏日最佳。",
@@ -308,6 +315,7 @@ const BJCP_STYLES = {
       },
       {
         id: "25B",
+        flavorTags: ["清亮", "优雅酒花", "干爽", "中高", "辛香"],
         name: "赛松",
         nameEn: "Saison",
         description: "干爽辛辣，果香酯味，农舍气息，收口极其干脆。农夫的解渴酒。",
@@ -346,6 +354,7 @@ const BJCP_STYLES = {
       },
       {
         id: "26C",
+        flavorTags: ["金黄", "低酒花", "浓郁", "高度", "焦糖"],
         name: "修道院三料",
         nameEn: "Belgian Tripel",
         description: "金黄透亮，复杂酯香，酒精温暖，收口干脆。修道院的巅峰之作。",
@@ -397,6 +406,7 @@ const BJCP_STYLES = {
     styles: [
       {
         id: "13C",
+        flavorTags: ["深棕", "低酒花", "中等", "低", "烘烤"],
         name: "英式波特",
         nameEn: "English Porter",
         description: "深棕至黑色，烤面包和咖啡风味，酒体中等，温和易饮。伦敦工人的最爱。",
@@ -434,6 +444,7 @@ const BJCP_STYLES = {
       },
       {
         id: "16B",
+        flavorTags: ["黑色", "低酒花", "丝滑", "低中", "咖啡"],
         name: "燕麦世涛",
         nameEn: "Oatmeal Stout",
         description: "深黑如夜，燕麦带来丝滑口感，咖啡巧克力风味，酒体饱满。早餐啤酒。",
@@ -471,6 +482,7 @@ const BJCP_STYLES = {
       },
       {
         id: "17D",
+        flavorTags: ["深棕", "酒花香", "浓郁", "高度", "焦糖"],
         name: "英式大麦酒",
         nameEn: "English Barleywine",
         description: "深琥珀至铜色，麦芽浓郁如蜜糖，酒体厚重，酒精温暖，适合陈年。",
@@ -524,6 +536,7 @@ const BJCP_STYLES = {
     styles: [
       {
         id: "3B",
+        flavorTags: ["清亮", "优雅酒花", "干爽", "低中", "面包"],
         name: "捷克优质淡色拉格",
         nameEn: "Czech Premium Pale Lager",
         description: "金黄透亮，萨兹酒花优雅花香，麦芽干净，苦度圆润。啤酒之王。",
@@ -559,6 +572,7 @@ const BJCP_STYLES = {
       },
       {
         id: "3D",
+        flavorTags: ["深棕", "优雅酒花", "中等", "低中", "焦糖"],
         name: "捷克深色拉格",
         nameEn: "Czech Dark Lager",
         description: "深琥珀至黑色，焦糖麦芽甜香，酒花苦度平衡，收口干净。",
@@ -609,6 +623,7 @@ const BJCP_STYLES = {
     styles: [
       {
         id: "23A",
+        flavorTags: ["浑浊", "极低酒花", "清爽", "低", "酸"],
         name: "柏林酸小麦",
         nameEn: "Berliner Weisse",
         description: "苍白浑浊，乳酸明亮酸味，清爽如柠檬水，酒精极低。夏日解渴神器。",
@@ -643,6 +658,7 @@ const BJCP_STYLES = {
       },
       {
         id: "23G",
+        flavorTags: ["清亮", "极低酒花", "干爽", "低中", "野菌"],
         name: "古兹",
         nameEn: "Gose",
         description: "苍白至淡金，乳酸酸味，香菜籽辛香，海盐微咸，极其清爽。德国传统酸啤。",
@@ -678,6 +694,7 @@ const BJCP_STYLES = {
       },
       {
         id: "28A",
+        flavorTags: ["清亮", "低酒花", "干爽", "低中", "野菌"],
         name: "布雷特啤酒",
         nameEn: "Brett Beer",
         description: "各种颜色，布雷特酵母带来皮革、农舍、热带水果的复杂风味。野菌入门。",

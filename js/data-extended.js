@@ -6,6 +6,7 @@ const BJCP_EXTENDED = {
     styles: [
       {
         id: "1D",
+        flavorTags: ["清亮", "酒花香", "清爽", "低中", "小麦"],
         name: "美国小麦啤酒",
         nameEn: "American Wheat Beer",
         description: "清爽小麦风味，低苦度，适合夏日畅饮。",
@@ -35,6 +36,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "2A",
+        flavorTags: ["清亮", "极低酒花", "清爽", "低", "面包"],
         name: "国际淡色拉格",
         nameEn: "International Pale Lager",
         description: "全球大众市场拉格，清爽解渴，低苦度。",
@@ -63,6 +65,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "2B",
+        flavorTags: ["琥珀", "极低酒花", "中等", "低中", "焦糖"],
         name: "国际琥珀色拉格",
         nameEn: "International Amber Lager",
         description: "琥珀色泽，焦糖麦芽甜香，中等苦度。",
@@ -92,6 +95,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "2C",
+        flavorTags: ["深棕", "极低酒花", "中等", "低中", "烘烤"],
         name: "国际深色拉格",
         nameEn: "International Dark Lager",
         description: "深琥珀至黑色，烘烤麦芽风味，低苦度。",
@@ -122,6 +126,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "21B",
+        flavorTags: ["清亮", "酒花香", "干爽", "中高", "特殊"],
         name: "特殊IPA",
         nameEn: "Specialty IPA",
         description: "IPA的变体家族，黑色、棕色、红色、白色、比利时等风格。",
@@ -153,6 +158,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "22D",
+        flavorTags: ["清亮", "酒花香", "浓郁", "高度", "小麦"],
         name: "小麦烈酒",
         nameEn: "Wheatwine",
         description: "高酒精度小麦啤酒，酒体饱满，麦芽浓郁。",
@@ -189,6 +195,7 @@ const BJCP_EXTENDED = {
     styles: [
       {
         id: "4B",
+        flavorTags: ["琥珀", "优雅酒花", "中等", "低中", "焦糖"],
         name: "节日啤酒",
         nameEn: "Festbier",
         description: "慕尼黑啤酒节现代版本，金黄透亮，麦芽浓郁，酒体饱满。",
@@ -218,6 +225,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "5A",
+        flavorTags: ["清亮", "极低酒花", "清爽", "低", "面包"],
         name: "德国清爽啤酒",
         nameEn: "German Leichtbier",
         description: "极低酒精度，清爽解渴，德国社交啤酒。",
@@ -246,6 +254,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "5B",
+        flavorTags: ["清亮", "优雅酒花", "干爽", "低中", "面包"],
         name: "科隆啤酒",
         nameEn: "Kölsch",
         description: "上层发酵的拉格风格，金黄透亮，细腻优雅，科隆特产。",
@@ -274,6 +283,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "5C",
+        flavorTags: ["清亮", "优雅酒花", "干爽", "低中", "面包"],
         name: "德国淡色出口啤酒",
         nameEn: "German Helles Exportbier",
         description: "比Helles更浓郁，麦芽风味更突出，出口版本。",
@@ -303,6 +313,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "6A",
+        flavorTags: ["琥珀", "优雅酒花", "中等", "中高", "焦糖"],
         name: "三月啤酒",
         nameEn: "Märzen",
         description: "传统慕尼黑啤酒节啤酒，琥珀色，麦芽浓郁，酒体饱满。",
@@ -333,6 +344,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "6B",
+        flavorTags: ["琥珀", "低酒花", "中等", "低中", "烟熏"],
         name: "烟熏啤酒",
         nameEn: "Rauchbier",
         description: "班贝格特产，使用烟熏麦芽，培根般的烟熏风味。",
@@ -362,6 +374,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "6C",
+        flavorTags: ["深棕", "低酒花", "浓郁", "高度", "焦糖"],
         name: "深色博克",
         nameEn: "Dunkles Bock",
         description: "深色博克，焦糖麦芽甜香，酒体厚重，酒精温暖。",
@@ -392,6 +405,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "7B",
+        flavorTags: ["清亮", "极低酒花", "中等", "低", "面包"],
         name: "德国老式啤酒",
         nameEn: "Altbier",
         description: "杜塞尔多夫特产，琥珀色，上层发酵但低温熟成，坚果焦糖风味。",
@@ -427,6 +441,7 @@ const BJCP_EXTENDED = {
     styles: [
       {
         id: "12B",
+        flavorTags: ["清亮", "极低酒花", "清爽", "低", "面包"],
         name: "澳大利亚气泡艾尔",
         nameEn: "Australian Sparkling Ale",
         description: "澳大利亚特产，高碳酸化，清爽果香，低苦度。",
@@ -456,6 +471,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "15B",
+        flavorTags: ["黑色", "低酒花", "中等", "低", "咖啡"],
         name: "爱尔兰世涛",
         nameEn: "Irish Stout",
         description: "吉尼斯风格，深黑如夜，咖啡烘烤风味，奶油般口感。",
@@ -486,6 +502,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "16A",
+        flavorTags: ["黑色", "极低酒花", "浓郁", "低", "巧克力"],
         name: "甜世涛",
         nameEn: "Sweet Stout",
         description: "乳糖增甜，深黑浓郁，咖啡巧克力与奶油甜味平衡。",
@@ -517,6 +534,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "16C",
+        flavorTags: ["黑色", "低酒花", "浓郁", "低中", "热带水果"],
         name: "热带世涛",
         nameEn: "Tropical Stout",
         description: "热带地区版本世涛，甜度高，酒体厚重，烘烤风味浓郁。",
@@ -547,6 +565,7 @@ const BJCP_EXTENDED = {
       },
       {
         id: "17B",
+        flavorTags: ["深棕", "酒花香", "浓郁", "高度", "焦糖"],
         name: "老艾尔",
         nameEn: "Old Ale",
         description: "陈酿艾尔，氧化风味，干果蜜糖，酒精温暖，适合陈年。",
@@ -583,6 +602,7 @@ const BJCP_EXTENDED = {
     styles: [
       {
         id: "23F",
+        flavorTags: ["清亮", "极低酒花", "清爽", "低", "水果"],
         name: "水果增味兰比克",
         nameEn: "Fruit Lambic",
         description: "传统兰比克加入水果陈酿，酸甜平衡，野菌复杂。",
@@ -616,6 +636,7 @@ const BJCP_EXTENDED = {
     styles: [
       {
         id: "25C",
+        flavorTags: ["金黄", "低酒花", "干爽", "高度", "辛香"],
         name: "比利时金色烈性艾尔",
         nameEn: "Belgian Golden Strong Ale",
         description: "杜瓦尔风格，金黄透亮，高酒精度，辛香酯味，收口干脆。",
