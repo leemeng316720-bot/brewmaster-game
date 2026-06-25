@@ -484,20 +484,102 @@ const game = {
     
     const bestMatch = matches[0];
     
-    // 选择4-6个选项（包含最佳匹配）
+    // 选择4-6个选项（包含最佳匹配），确保差异化
     const optionCount = Math.min(4 + Math.floor(level / 2), 8);
     const options = [bestMatch];
     const used = new Set([bestMatch.style.id]);
     
-    // 添加一些其他风格作为干扰项（优先选择与最佳匹配差异明显的）
+    // 计算风格差异度函数
+    const styleDiff = (a, b) => {
+      const srmA = (a.srm.min + a.srm.max) / 2;
+      const srmB = (b.srm.min + b.srm.max) / 2;
+      const ibuA = (a.ibu.min + a.ibu.max) / 2;
+      const ibuB = (b.ibu.min + b.ibu.max) / 2;
+      const abvA = (a.abv.min + a.abv.max) / 2;
+      const abvB = (b.abv.min + b.abv.max) / 2;
+      
+      // 归一化差异（关键维度权重更高）
+      const srmDiff = Math.abs(srmA - srmB) / 40;      // 颜色差异（0-1）
+      const ibuDiff = Math.abs(ibuA - ibuB) / 100;      // 苦度差异（0-1）
+      const abvDiff = Math.abs(abvA - abvB) / 12;       // 酒精差异（0-1）
+      
+      // 加权：颜色差异权重最高（视觉上最容易区分），其次是苦度
+      return srmDiff * 2 + ibuDiff * 1.5 + abvDiff;
+    };
+    
+    // 收集候选干扰项（排除最佳匹配和已选）
+    const candidates = matches.filter(m => m.style.id !== bestMatch.style.id);
+    
+    // 策略1：先选与最佳匹配差异最大的（确保视觉冲击）
+    const diffs = candidates.map(c => ({
+      ...c,
+      diffScore: styleDiff(c.style, bestMatch.style)
+    })).sort((a, b) => b.diffScore - a.diffScore);
+    
+    // 策略2：从不同"特征簇"中选，确保每个选项都有独特特征
+    // 按颜色分组：浅色(SRM<=8)、中等(8-20)、深色(>20)
+    // 按苦度分组：低苦(IBU<=20)、中等(20-40)、高苦(>40)
+    // 按酒精分组：低度(ABV<=5)、中度(5-7)、高度(>7)
+    const clusters = {
+      light: diffs.filter(c => c.style.srm.max <= 8),
+      medium: diffs.filter(c => c.style.srm.min > 8 && c.style.srm.max <= 20),
+      dark: diffs.filter(c => c.style.srm.min > 20),
+      lowIbu: diffs.filter(c => c.style.ibu.max <= 20),
+      midIbu: diffs.filter(c => c.style.ibu.min > 20 && c.style.ibu.max <= 40),
+      highIbu: diffs.filter(c => c.style.ibu.min > 40),
+      lowAbv: diffs.filter(c => c.style.abv.max <= 5),
+      midAbv: diffs.filter(c => c.style.abv.min > 5 && c.style.abv.max <= 7),
+      highAbv: diffs.filter(c => c.style.abv.min > 7),
+    };
+    
+    // 确定最佳匹配属于哪些簇
+    const bestSrm = (bestMatch.style.srm.min + bestMatch.style.srm.max) / 2;
+    const bestIbu = (bestMatch.style.ibu.min + bestMatch.style.ibu.max) / 2;
+    const bestAbv = (bestMatch.style.abv.min + bestMatch.style.abv.max) / 2;
+    
+    // 优先从与最佳匹配不同簇中选，确保差异化
+    const clusterPriority = [];
+    if (bestSrm > 20) clusterPriority.push(clusters.light, clusters.medium);
+    else if (bestSrm > 8) clusterPriority.push(clusters.dark, clusters.light);
+    else clusterPriority.push(clusters.dark, clusters.medium);
+    
+    if (bestIbu > 40) clusterPriority.push(clusters.lowIbu, clusters.midIbu);
+    else if (bestIbu > 20) clusterPriority.push(clusters.lowIbu, clusters.highIbu);
+    else clusterPriority.push(clusters.midIbu, clusters.highIbu);
+    
+    if (bestAbv > 7) clusterPriority.push(clusters.lowAbv, clusters.midAbv);
+    else if (bestAbv > 5) clusterPriority.push(clusters.lowAbv, clusters.highAbv);
+    else clusterPriority.push(clusters.midAbv, clusters.highAbv);
+    
+    // 按优先级从各簇中挑选（去重）
+    for (const cluster of clusterPriority) {
+      if (options.length >= optionCount) break;
+      for (const candidate of cluster) {
+        if (options.length >= optionCount) break;
+        if (!used.has(candidate.style.id)) {
+          // 额外检查：与已有选项的差异度，避免选到太相似的
+          const minDiff = options.reduce((min, opt) => {
+            const d = styleDiff(candidate.style, opt.style);
+            return Math.min(min, d);
+          }, Infinity);
+          
+          // 如果与已有选项的差异度足够大（>0.15），才加入
+          if (minDiff > 0.15) {
+            used.add(candidate.style.id);
+            options.push(candidate);
+          }
+        }
+      }
+    }
+    
+    // 如果选项还不够，从差异度排序中补充
     while (options.length < optionCount && options.length < matches.length) {
-      // 从后半部分随机选择（匹配度较低的），增加区分度
-      const tailStart = Math.floor(matches.length * 0.3);
-      const candidatePool = matches.slice(tailStart);
-      const candidate = candidatePool[Math.floor(Math.random() * candidatePool.length)];
-      if (!used.has(candidate.style.id)) {
-        used.add(candidate.style.id);
-        options.push(candidate);
+      for (const candidate of diffs) {
+        if (options.length >= optionCount) break;
+        if (!used.has(candidate.style.id)) {
+          used.add(candidate.style.id);
+          options.push(candidate);
+        }
       }
     }
     
@@ -594,7 +676,9 @@ const game = {
     else if (avgABV <= 8) tags.add('较高酒精');
     else tags.add('高酒精');
     if (style.abv.max <= 5) tags.add('低度');
-    if (style.abv.min >= 6) tags.add('烈性');
+    if (style.abv.min >= 8) tags.add('烈性');
+    if (avgABV <= 7.5) tags.add('标准酒精');
+    if (avgABV >= 6 && avgABV <= 8) tags.add('中高酒精');
     
     // 酒花特征标签（基于酒花类型和描述）
     const hopAroma = style.hops?.filter(h => h.type === 'aroma' || h.type === 'dual').length || 0;
@@ -726,14 +810,14 @@ const game = {
       { label: '喜欢黑啤', tags: ['黑啤', '颜色很深'], antiTags: ['颜色很浅', '颜色浅', '浅色'], weight: 1.5 },
       
       // 苦度偏好
-      { label: '不要太苦', tags: ['不苦', '微苦', '低苦味', '几乎不苦'], antiTags: ['较苦', '很苦', '高苦味', '强烈苦味'], weight: 1.2 },
-      { label: '喜欢苦味', tags: ['较苦', '很苦', '高苦味', '强烈苦味'], antiTags: ['不苦', '微苦', '低苦味', '几乎不苦'], weight: 1.2 },
+      { label: '不要太苦', tags: ['不苦', '微苦', '低苦味', '几乎不苦', '中等苦度'], antiTags: ['很苦', '强烈苦味'], weight: 1.2 },
+      { label: '喜欢苦味', tags: ['较苦', '很苦', '高苦味', '强烈苦味'], antiTags: ['不苦', '微苦', '低苦味', '几乎不苦', '中等苦度'], weight: 1.2 },
       { label: '苦度适中', tags: ['微苦', '中等苦度', '温和苦度'], antiTags: ['很苦', '不苦', '强烈苦味', '几乎不苦'], weight: 1.0 },
       
       // 酒精度偏好
-      { label: '酒精度低一点', tags: ['低酒精', '低度', '社交型'], antiTags: ['较高酒精', '高酒精', '烈性', '高度烈性'], weight: 1.0 },
-      { label: '想要烈一点的', tags: ['较高酒精', '高酒精', '烈性', '高度烈性'], antiTags: ['低酒精', '低度', '社交型'], weight: 1.2 },
-      { label: '适中就好', tags: ['中等酒精', '低度', '标准酒精'], antiTags: ['高酒精', '烈性', '高度烈性'], weight: 1.0 },
+      { label: '酒精度低一点', tags: ['低酒精', '低度', '社交型'], antiTags: ['高酒精', '烈性', '高度烈性'], weight: 1.0 },
+      { label: '想要烈一点的', tags: ['高酒精', '烈性', '高度烈性'], antiTags: ['低酒精', '低度', '社交型'], weight: 1.2 },
+      { label: '适中就好', tags: ['中等酒精', '低度', '标准酒精', '中高酒精'], antiTags: ['高酒精', '烈性', '高度烈性'], weight: 1.0 },
       
       // 风味偏好 - 酒花
       { label: '喜欢酒花香气', tags: ['酒花香气', '酒花主导', '优雅酒花'], antiTags: ['低酒花'], weight: 1.5 },
